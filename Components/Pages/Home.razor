@@ -6,16 +6,17 @@
 @using MudBlazor
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
+@using System.Text.Json
 
 <MudText Typo="Typo.h1" Align="Align.Center"><b>Celestial Shield</b></MudText>
 
 <MudContainer MaxWidth="MaxWidth.Large" Style="margin-top:12px;">
     <MudPaper Elevation="0" Class="pa-4">
-        <MudNumericField T="double?" Label="Absolute Magnitude" Placeholder="H" Variant="Variant.Outlined" Class="mt-4" />
-        <MudNumericField T="double?" Label="Asteroid Diameter" Placeholder="km" Variant="Variant.Outlined" Class="mt-4" />
-        <MudNumericField T="double?" Label="Relative Velocity" Placeholder="km/s" Variant="Variant.Outlined" Class="mt-4" />
-        <MudNumericField T="double?" Label="Mass" Placeholder="kg" Variant="Variant.Outlined" Class="mt-4" />
-        <MudTextField T="string" InputType="InputType.Text" Label="Classification" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" />
+    <MudNumericField T="double?" Label="Absolute Magnitude" Placeholder="H" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Magnitude" />
+    <MudNumericField T="double?" Label="Asteroid Diameter" Placeholder="km" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Diameter" />
+    <MudNumericField T="double?" Label="Relative Velocity" Placeholder="km/s" Variant="Variant.Outlined" Class="mt-4" @bind-Value="RelativeVelocity" />
+    <MudNumericField T="double?" Label="Mass" Placeholder="kg" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Mass" />
+    <MudTextField T="string" InputType="InputType.Text" Label="Classification" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Classification" />
 
         <MudButton Variant="Variant.Filled" 
                     Color="Color.Dark" 
@@ -219,6 +220,13 @@ else if (Results != null)
     private bool Loading;
     private string? StatusMessage;
 
+    // Bound form properties
+    private double? Magnitude { get; set; }
+    private double? Diameter { get; set; }
+    private double? RelativeVelocity { get; set; }
+    private double? Mass { get; set; }
+    private string? Classification { get; set; }
+
     private async Task GetResults()
     {
         if (OpenAi == null) return;
@@ -227,7 +235,19 @@ else if (Results != null)
         Logger?.LogInformation("Home: Starting GetResults");
         try
         {
-            var userPrompt = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\nPredict whether this meteor will hit Earth\n\n### Input:\n{\"magnitude\": 3000, \"diameter\": 2000.66, \"relative_velocity\": 30000}\n\n### Response:\n";
+            // Build a JSON payload from the current bound values so the model receives real user input
+            var inputObj = new
+            {
+                magnitude = Magnitude ?? 0,
+                diameter = Diameter ?? 0,
+                relative_velocity = RelativeVelocity ?? 0,
+                mass = Mass ?? 0,
+                classification = Classification ?? string.Empty
+            };
+
+            var inputJson = JsonSerializer.Serialize(inputObj);
+
+            var userPrompt = $"Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\nPredict whether this meteor will hit Earth\n\n### Input:\n{inputJson}\n\n### Response:\n";
 
             var functionSchema = new
             {
