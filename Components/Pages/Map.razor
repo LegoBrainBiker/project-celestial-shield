@@ -1,0 +1,60 @@
+@page "/map"
+@rendermode InteractiveServer
+@inject IJSRuntime JSRuntime
+
+@test()
+<PageTitle>Map!!!!</PageTitle>
+<script>
+async function injectMap(key, lat, lng, rad) {
+    "use strict";
+    const content = document.getElementsByClassName('content')[0];
+    if (key === null) {
+        alert('missing api key: MAPS_API_KEY');
+        return;
+    }
+    const mapsScript =  document.createElement('script');
+    mapsScript.src = 'https://maps.googleapis.com/maps/api/js?key='+key;
+    content.append(mapsScript);
+    await new Promise(resolve => {
+        mapsScript.onload = resolve;
+    })
+    const position = { lat: lat, lng: lng };
+    const { Map } = await window.google.maps.importLibrary("maps");
+    const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+    const mapElement = document.createElement("div");
+    mapElement.style.height = '1000px';
+    content.append(mapElement);
+    const map = new Map(mapElement, {
+        zoom: 4,
+        center: position,
+        mapId: "meteorimpactmap",
+    });
+
+    // The marker, positioned at Uluru
+    const marker = new AdvancedMarkerElement({
+        map: map,
+        position: position,
+        title: "point of impact",
+    });
+    const poly = new google.maps.Circle({
+        fillColor: "#000000",
+        map: map,
+        fillOpacity: 1,
+        center: position,
+        radius: rad
+    });
+}
+</script>
+
+@code {
+    private string test() {
+        injectMap(0, 0, 1000);
+        return "";
+    }
+
+    private async Task injectMap(float lat, float lng, float rad)
+    {
+        string key = Environment.GetEnvironmentVariable("MAPS_API_KEY");
+        await JSRuntime.InvokeVoidAsync("injectMap", key, lat, lng, rad);
+    }
+}
