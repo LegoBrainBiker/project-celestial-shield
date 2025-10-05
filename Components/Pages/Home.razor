@@ -9,97 +9,49 @@
 
 <MudText Typo="Typo.h1" Align="Align.Center"><b>Celestial Shield</b></MudText>
 
-@* Small AI action area: allows requesting OpenAI results without leaving the main UI *@
 <MudContainer MaxWidth="MaxWidth.Large" Style="margin-top:12px;">
     <MudPaper Elevation="0" Class="pa-4">
-        <MudStack Direction="Row" Spacing="2" Justify="Justify.Center">
-            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="GetResults">AI Results</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/counter">Go to counter</MudButton>
-            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/weather">Weather</MudButton>
-        </MudStack>
+        <MudNumericField T="double?" Label="Absolute Magnitude" Placeholder="H" Variant="Variant.Outlined" Class="mt-4" />
+        <MudNumericField T="double?" Label="Asteroid Diameter" Placeholder="km" Variant="Variant.Outlined" Class="mt-4" />
+        <MudNumericField T="double?" Label="Relative Velocity" Placeholder="km/s" Variant="Variant.Outlined" Class="mt-4" />
+        <MudNumericField T="double?" Label="Mass" Placeholder="kg" Variant="Variant.Outlined" Class="mt-4" />
+        <MudTextField T="string" InputType="InputType.Text" Label="Classification" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" />
 
-        @if (Loading)
-        {
-            <div class="d-flex justify-center mt-4">
-                <MudProgressCircular Indeterminate="true" />
-            </div>
-        }
-        else if (Results != null)
-        {
-            <MudDivider Class="my-4" />
-            <MudText Typo="Typo.h5">AI Results</MudText>
-            <MudText>@($"Distance: {Results.distance}")</MudText>
-            <MudText>@($"Hazardous: {Results.hazardous}")</MudText>
-            <MudText>@($"Impact Probability: {Results.impact_probability}")</MudText>
-        }
+        <MudButton Variant="Variant.Filled" 
+                    Color="Color.Dark" 
+                    FullWidth="true" 
+                    Class="mt-6" 
+                    Size="Size.Large"
+                    OnClick="GetResults"> 
+            Get Results
+        </MudButton>
     </MudPaper>
 </MudContainer>
 
-@* This is the initial form, recreated from your image. It shows by default. *@
-
-
-<MudGrid Justify="Justify.Center" Class="mt-12 mb-8">
-    <MudItem xs="12" sm="8" md="5">
-        <MudPaper Class="pa-8" Elevation="3">
-		
-        	<MudText Typo="Typo.h5" GutterBottom="true">Simulation Parameters</MudText>
-
-	        <MudNumericField T="double?" Label="Absolute Magnitude" Placeholder="H" Variant="Variant.Outlined" Class="mt-4" />
-            <MudNumericField T="double?" Label="Asteroid Diameter" Placeholder="km" Variant="Variant.Outlined" Class="mt-4" />
-        	<MudNumericField T="double?" Label="Relative Velocity" Placeholder="km/s" Variant="Variant.Outlined" Class="mt-4" />
-        	<MudNumericField T="double?" Label="Mass" Placeholder="kg" Variant="Variant.Outlined" Class="mt-4" />
-        	<MudTextField T="string" InputType="InputType.Text" Label="Classification" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" />
-
-            <MudButton Variant="Variant.Filled" 
-                        Color="Color.Dark" 
-                        FullWidth="true" 
-                        Class="mt-6" 
-                        Size="Size.Large"
-                        @onclick="RunSimulation"> 
-                Simulate
-            </MudButton>
-        </MudPaper>
-    </MudItem>
-</MudGrid>
+<MudText Typo="Typo.subtitle1" Align="Align.Center" Class="mt-4 mb-4">@StatusMessage</MudText>
 
 @* This @if block controls which view is shown. *@
-@if (_simulationRun)
+@if (Loading)
 {
-    @* This is the results UI from the previous step. It shows only after the button is clicked. *@
+    <div class="d-flex justify-center mt-4">
+        <MudProgressCircular Indeterminate="true" />
+    </div>
+}
+else if (Results != null)
+{
     <MudPaper Class="pa-4" Elevation="0">
         <MudTabs Elevation="2" Rounded="true" ApplyEffects="true" PanelClass="pa-6">
-            
-            @* TAB 1: OVERVIEW *@
             <MudTabPanel Text="Overview">
                 <MudGrid Spacing="4">
-                    
-                    @* Image Placeholders *@
-                    <MudItem xs="12" sm="4">
-                        <MudCard>
-                            <MudCardMedia Image="https://via.placeholder.com/500x280.png?text=Asteroid+View+1" Height="150"/>
-                        </MudCard>
-                    </MudItem>
-                    <MudItem xs="12" sm="4">
-                        <MudCard>
-                            <MudCardMedia Image="https://via.placeholder.com/500x280.png?text=Trajectory+Model" Height="150"/>
-                        </MudCard>
-                    </MudItem>
-                    <MudItem xs="12" sm="4">
-                        <MudCard>
-                            <MudCardMedia Image="https://via.placeholder.com/500x280.png?text=Data+Analysis" Height="150"/>
-                        </MudCard>
-                    </MudItem>
-
-                    @* Data Cards *@
                     <MudItem xs="12" md="6">
                         <MudCard>
                             <MudCardHeader>
                                 <CardHeaderContent>
-                                    <MudText Typo="Typo.h6">Distance from Earth</MudText>
+                                    <MudText Typo="Typo.h6">Approximate Miss Distance</MudText>
                                 </CardHeaderContent>
                             </MudCardHeader>
                             <MudCardContent>
-                                <MudText Typo="Typo.body2">Details about the asteroid's current and projected distance from Earth, including key milestones and closest approach information.</MudText>
+                                <MudText Typo="Typo.body2">@(Results.distance)</MudText>
                             </MudCardContent>
                         </MudCard>
                     </MudItem>
@@ -107,12 +59,11 @@
                         <MudCard>
                             <MudCardHeader>
                                 <CardHeaderContent>
-                                    <MudText Typo="Typo.h6">Hazardous?</MudText>
+                                    <MudText Typo="Typo.h6">Hazardous</MudText>
                                 </CardHeaderContent>
                             </MudCardHeader>
                             <MudCardContent>
-                                <MudText Typo="Typo.h5" Color="Color.Error"><b>This asteroid is hazardous!</b></MudText>
-                                <MudText Typo="Typo.body2">This section provides a clear, concise determination based on the Palermo Technical Impact Hazard Scale.</MudText>
+                                <MudText Typo="Typo.h5">@(Results.hazardous)</MudText>
                             </MudCardContent>
                         </MudCard>
                     </MudItem>
@@ -120,30 +71,17 @@
                         <MudCard>
                             <MudCardHeader>
                                 <CardHeaderContent>
-                                    <MudText Typo="Typo.h6">Hit Probability</MudText>
+                                    <MudText Typo="Typo.h6">Impact Probability</MudText>
                                 </CardHeaderContent>
                             </MudCardHeader>
                             <MudCardContent>
-                                <MudText Typo="Typo.body2">Analysis of the statistical probability of an Earth impact, calculated from orbital tracking data. Includes confidence intervals and potential impact windows.</MudText>
-                            </MudCardContent>
-                        </MudCard>
-                    </MudItem>
-                    <MudItem xs="12" md="6">
-                        <MudCard>
-                            <MudCardHeader>
-                                <CardHeaderContent>
-                                    <MudText Typo="Typo.h6">Asteroid Details</MudText>
-                                </CardHeaderContent>
-                            </MudCardHeader>
-                            <MudCardContent>
-                                <MudText Typo="Typo.body2">Physical characteristics of the asteroid, such as estimated size, mass, composition (e.g., C-type, S-type), and rotation period.</MudText>
+                                <MudText Typo="Typo.body2">@(Results.impact_probability)</MudText>
                             </MudCardContent>
                         </MudCard>
                     </MudItem>
                 </MudGrid>
             </MudTabPanel>
 
-            @* TAB 2: IMPACT *@
             <MudTabPanel Text="Impact">
                 <MudGrid Justify="Justify.Center">
                     <MudItem xs="12" sm="10" md="8" lg="6">
@@ -175,7 +113,6 @@
                 </MudGrid>
             </MudTabPanel>
 
-            @* TAB 3: CONSEQUENCES *@
             <MudTabPanel Text="Consequences">
                 <MudText Typo="Typo.h4" GutterBottom="true">Environmental Consequences</MudText>
                 <MudGrid Spacing="4">
@@ -218,7 +155,6 @@
                 </MudGrid>
             </MudTabPanel>
 
-            @* TAB 4: MITIGATION *@
             <MudTabPanel Text="Mitigation">
                 <MudGrid Spacing="4">
                     <MudItem xs="12" md="6">
@@ -259,39 +195,20 @@
                     </MudItem>
                 </MudGrid>
             </MudTabPanel>
-
         </MudTabs>
 
-        <MudContainer Class="d-flex justify-end mt-6 mb-4">
+        @* <MudContainer Class="d-flex justify-end mt-6 mb-4">
             <MudButton Variant="Variant.Filled" 
                        Color="Color.Secondary" 
                        Size="Size.Large"
                        @onclick="ResetSimulation">
                 New Simulation
             </MudButton>
-        </MudContainer>
+        </MudContainer> *@
     </MudPaper>
 }
 
 @code {
-    // Simulation UI state
-    private bool _simulationRun = false;
-
-    private void RunSimulation()
-    {
-        // In a real app, you would process the form data here.
-        // For now, we just switch the view.
-        _simulationRun = true;
-    }
-
-    private void ResetSimulation()
-    {
-        // Setting this to false hides the results UI (the @if block)
-        // and keeps only the form visible.
-        _simulationRun = false;
-    }
-
-    // OpenAI integration from HEAD
     [Microsoft.AspNetCore.Components.Inject]
     public project_celestial_shield.Services.OpenAiService? OpenAi { get; set; }
 
