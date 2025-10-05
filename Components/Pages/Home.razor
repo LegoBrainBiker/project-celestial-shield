@@ -7,9 +7,87 @@
 		<MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
 		<MudText Typo="Typo.body1" Class="mb-4">Welcome to your new app.</MudText>
 
-		<MudStack Direction="Row" Spacing="2">
+        <MudStack Direction="Row" Spacing="2">
 			<MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/counter">Go to counter</MudButton>
 			<MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/weather">Weather</MudButton>
+			<MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="GetResults">Results</MudButton>
 		</MudStack>
+
+		@if (Loading)
+		{
+			<MudProgressCircular Indeterminate="true" Class="my-4" />
+		}
+		else if (Results != null)
+		{
+			<MudDivider Class="my-4" />
+			<MudText Typo="Typo.h5">Results</MudText>
+			<MudText>@($"Distance: {Results.distance}")</MudText>
+			<MudText>@($"Hazardous: {Results.hazardous}")</MudText>
+			<MudText>@($"Impact Probability: {Results.impact_probability}")</MudText>
+		}
 	</MudPaper>
 </MudContainer>
+
+@code {
+	[Microsoft.AspNetCore.Components.Inject]
+	public project_celestial_shield.Services.OpenAiService? OpenAi { get; set; }
+
+	[Microsoft.AspNetCore.Components.Inject]
+	public Microsoft.Extensions.Logging.ILogger<Home>? Logger { get; set; }
+
+	private project_celestial_shield.Models.Results? Results;
+	private bool Loading;
+	private string? StatusMessage;
+
+	private async Task GetResults()
+	{
+		if (OpenAi == null) return;
+		Loading = true;
+		StatusMessage = "Requesting results...";
+		Logger?.LogInformation("Home: Starting GetResults");
+		try
+		{
+			var userPrompt = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\nPredict whether this meteor will hit Earth\n\n### Input:\n{\"magnitude\": 3000, \"diameter\": 2000.66, \"relative_velocity\": 30000}\n\n### Response:\n";
+
+			var functionSchema = new
+			{
+				name = "create_results_profile",
+				description = "Return a results object in strict JSON.",
+				parameters = new
+				{
+					type = "object",
+					properties = new
+					{
+						distance = new { type = "number" },
+						hazardous = new { type = "boolean" },
+                        impact_probability = new { type = "number" },
+					},
+					required = new[] { "hazardous", "impact_probability" }
+				}
+			};
+
+			Results = await OpenAi.GetStructuredResultAsync<project_celestial_shield.Models.Results>("", userPrompt, functionSchema, model: "qwen3-0.6b-meteor");
+			if (Results != null)
+			{
+				StatusMessage = "Results received";
+				Logger?.LogInformation("Home: Received results: {@Results}", Results);
+			}
+			else
+			{
+				StatusMessage = "No results returned";
+				Logger?.LogWarning("Home: GetStructuredResultAsync returned null");
+			}
+		}
+		catch (Exception ex)
+		{
+			StatusMessage = $"Error: {ex.Message}";
+			Logger?.LogError(ex, "Home: Error getting results");
+			throw;
+		}
+		finally
+		{
+			Loading = false;
+			StateHasChanged();
+		}
+	}
+}
