@@ -1,12 +1,11 @@
 ﻿@page "/"
+@rendermode InteractiveServer
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Celestial Shield</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large" Style="margin-top:24px;">
-	<MudPaper Elevation="4" Style="padding:24px;">
-		<MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
-		<MudText Typo="Typo.body1" Class="mb-4">Welcome to your new app.</MudText>
+@using MudBlazor
 
+<<<<<<< HEAD
         <MudStack Direction="Row" Spacing="2">
 			<MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/counter">Go to counter</MudButton>
 			<MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/weather">Weather</MudButton>
@@ -31,63 +30,354 @@
 @code {
 	[Microsoft.AspNetCore.Components.Inject]
 	public project_celestial_shield.Services.OpenAiService? OpenAi { get; set; }
+@page "/"
+@rendermode InteractiveServer
 
-	[Microsoft.AspNetCore.Components.Inject]
-	public Microsoft.Extensions.Logging.ILogger<Home>? Logger { get; set; }
+<PageTitle>Celestial Shield</PageTitle>
 
-	private project_celestial_shield.Models.Results? Results;
-	private bool Loading;
-	private string? StatusMessage;
+@using MudBlazor
 
-	private async Task GetResults()
-	{
-		if (OpenAi == null) return;
-		Loading = true;
-		StatusMessage = "Requesting results...";
-		Logger?.LogInformation("Home: Starting GetResults");
-		try
-		{
-			var userPrompt = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\nPredict whether this meteor will hit Earth\n\n### Input:\n{\"magnitude\": 3000, \"diameter\": 2000.66, \"relative_velocity\": 30000}\n\n### Response:\n";
+<MudText Typo="Typo.h1" Align="Align.Center"><b>Celestial Shield</b></MudText>
 
-			var functionSchema = new
-			{
-				name = "create_results_profile",
-				description = "Return a results object in strict JSON.",
-				parameters = new
-				{
-					type = "object",
-					properties = new
-					{
-						distance = new { type = "number" },
-						hazardous = new { type = "boolean" },
+@* Small AI action area: allows requesting OpenAI results without leaving the main UI *@
+<MudContainer MaxWidth="MaxWidth.Large" Style="margin-top:12px;">
+    <MudPaper Elevation="0" Class="pa-4">
+        <MudStack Direction="Row" Spacing="2" Justify="Justify.Center">
+            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="GetResults">AI Results</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/counter">Go to counter</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/weather">Weather</MudButton>
+        </MudStack>
+
+        @if (Loading)
+        {
+            <div class="d-flex justify-center mt-4">
+                <MudProgressCircular Indeterminate="true" />
+            </div>
+        }
+        else if (Results != null)
+        {
+            <MudDivider Class="my-4" />
+            <MudText Typo="Typo.h5">AI Results</MudText>
+            <MudText>@($"Distance: {Results.distance}")</MudText>
+            <MudText>@($"Hazardous: {Results.hazardous}")</MudText>
+            <MudText>@($"Impact Probability: {Results.impact_probability}")</MudText>
+        }
+    </MudPaper>
+</MudContainer>
+
+@* This is the initial form, recreated from your image. It shows by default. *@
+<MudGrid Justify="Justify.Center" Class="mt-12 mb-8">
+    <MudItem xs="12" sm="8" md="5">
+        <MudPaper Class="pa-8" Elevation="3">
+            <MudText Typo="Typo.h5" GutterBottom="true">Simulation Parameters</MudText>
+            
+            <MudTextField T="string" Label="Asteroid radius" Placeholder="km" Variant="Variant.Outlined" Class="mt-4" />
+            <MudTextField T="string" Label="Impact speed" Placeholder="km/h" Variant="Variant.Outlined" Class="mt-4" />
+            <MudTextField T="string" Label="Impact area" Placeholder="km^2" Variant="Variant.Outlined" Class="mt-4" />
+            <MudTextField T="string" Label="Population" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" />
+            <MudTextField T="string" Label="Other values" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" />
+                
+            <MudButton Variant="Variant.Filled" 
+                        Color="Color.Dark" 
+                        FullWidth="true" 
+                        Class="mt-6" 
+                        Size="Size.Large"
+                        @onclick="RunSimulation"> 
+                Simulate
+            </MudButton>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@* This @if block controls which view is shown. *@
+@if (_simulationRun)
+{
+    @* This is the results UI from the previous step. It shows only after the button is clicked. *@
+    <MudPaper Class="pa-4" Elevation="0">
+        <MudTabs Elevation="2" Rounded="true" ApplyEffects="true" PanelClass="pa-6">
+            
+            @* TAB 1: OVERVIEW *@
+            <MudTabPanel Text="Overview">
+                <MudGrid Spacing="4">
+                    
+                    @* Image Placeholders *@
+                    <MudItem xs="12" sm="4">
+                        <MudCard>
+                            <MudCardMedia Image="https://via.placeholder.com/500x280.png?text=Asteroid+View+1" Height="150"/>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudCard>
+                            <MudCardMedia Image="https://via.placeholder.com/500x280.png?text=Trajectory+Model" Height="150"/>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12" sm="4">
+                        <MudCard>
+                            <MudCardMedia Image="https://via.placeholder.com/500x280.png?text=Data+Analysis" Height="150"/>
+                        </MudCard>
+                    </MudItem>
+
+                    @* Data Cards *@
+                    <MudItem xs="12" md="6">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Distance from Earth</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">Details about the asteroid's current and projected distance from Earth, including key milestones and closest approach information.</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Hazardous?</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.h5" Color="Color.Error"><b>This asteroid is hazardous!</b></MudText>
+                                <MudText Typo="Typo.body2">This section provides a clear, concise determination based on the Palermo Technical Impact Hazard Scale.</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Hit Probability</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">Analysis of the statistical probability of an Earth impact, calculated from orbital tracking data. Includes confidence intervals and potential impact windows.</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Asteroid Details</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">Physical characteristics of the asteroid, such as estimated size, mass, composition (e.g., C-type, S-type), and rotation period.</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+
+            @* TAB 2: IMPACT *@
+            <MudTabPanel Text="Impact">
+                <MudGrid Justify="Justify.Center">
+                    <MudItem xs="12" sm="10" md="8" lg="6">
+                        <MudCard Elevation="3">
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Projected Impact Zone Analysis</MudText>
+                                </CardHeaderContent>
+                                <CardHeaderActions>
+                                    <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Default" />
+                                </CardHeaderActions>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudPaper Height="300px" Class="d-flex align-center justify-center mud-theme-dark">
+                                                                        <MudText Typo="Typo.h5">Google Maps API Placeholder</MudText>
+                                </MudPaper>
+                                <MudList T="string" Class="mt-4">
+                                    <MudListItem Icon="@Icons.Material.Filled.Public" Text="Color coded by risk" />
+                                    <MudListItem Icon="@Icons.Material.Filled.Adjust" Text="Crater size estimates" />
+                                    <MudListItem Icon="@Icons.Material.Filled.Vibration" Text="Earthquake equivalent (Richter scale)" />
+                                </MudList>
+                            </MudCardContent>
+                            <MudCardActions>
+                                <MudButton Variant="Variant.Text" Color="Color.Primary">Details</MudButton>
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary">Run Simulation</MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+
+            @* TAB 3: CONSEQUENCES *@
+            <MudTabPanel Text="Consequences">
+                <MudText Typo="Typo.h4" GutterBottom="true">Environmental Consequences</MudText>
+                <MudGrid Spacing="4">
+                    <MudItem xs="12" md="4">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Atmosphere</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">Details on the potential for atmospheric dust and aerosol injection, which could lead to an "impact winter" by blocking sunlight and lowering global temperatures.</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Organisms</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">Assessment of the impact on global biodiversity, including potential extinction events, ecosystem collapse, and long-term effects on flora and fauna.</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Geological</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">Analysis of geological consequences, such as mega-tsunamis from ocean impacts, widespread seismic activity, and the potential for increased volcanism.</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+
+            @* TAB 4: MITIGATION *@
+            <MudTabPanel Text="Mitigation">
+                <MudGrid Spacing="4">
+                    <MudItem xs="12" md="6">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Deflection Strategies</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">Primary options include kinetic impactors (like NASA's DART mission), gravity tractors for slow adjustments, and laser ablation to vaporize surface material for thrust.</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Disruption Strategies</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">Higher-risk options for short-notice threats, such as using a standoff nuclear device to fracture the asteroid into smaller, less harmful fragments that would mostly burn up in the atmosphere.</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Mission Readiness & Timelines</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">This section details the current state of readiness for various mitigation technologies. It outlines the minimum lead time required to launch and execute a successful deflection or disruption mission based on the asteroid's trajectory and distance.</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+
+        </MudTabs>
+
+        <MudContainer Class="d-flex justify-end mt-6 mb-4">
+            <MudButton Variant="Variant.Filled" 
+                       Color="Color.Secondary" 
+                       Size="Size.Large"
+                       @onclick="ResetSimulation">
+                New Simulation
+            </MudButton>
+        </MudContainer>
+    </MudPaper>
+}
+
+@code {
+    // Simulation UI state
+    private bool _simulationRun = false;
+
+    private void RunSimulation()
+    {
+        // In a real app, you would process the form data here.
+        // For now, we just switch the view.
+        _simulationRun = true;
+    }
+
+    private void ResetSimulation()
+    {
+        // Setting this to false hides the results UI (the @if block)
+        // and keeps only the form visible.
+        _simulationRun = false;
+    }
+
+    // OpenAI integration from HEAD
+    [Microsoft.AspNetCore.Components.Inject]
+    public project_celestial_shield.Services.OpenAiService? OpenAi { get; set; }
+
+    [Microsoft.AspNetCore.Components.Inject]
+    public Microsoft.Extensions.Logging.ILogger<Home>? Logger { get; set; }
+
+    private project_celestial_shield.Models.Results? Results;
+    private bool Loading;
+    private string? StatusMessage;
+
+    private async Task GetResults()
+    {
+        if (OpenAi == null) return;
+        Loading = true;
+        StatusMessage = "Requesting results...";
+        Logger?.LogInformation("Home: Starting GetResults");
+        try
+        {
+            var userPrompt = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\nPredict whether this meteor will hit Earth\n\n### Input:\n{\"magnitude\": 3000, \"diameter\": 2000.66, \"relative_velocity\": 30000}\n\n### Response:\n";
+
+            var functionSchema = new
+            {
+                name = "create_results_profile",
+                description = "Return a results object in strict JSON.",
+                parameters = new
+                {
+                    type = "object",
+                    properties = new
+                    {
+                        distance = new { type = "number" },
+                        hazardous = new { type = "boolean" },
                         impact_probability = new { type = "number" },
-					},
-					required = new[] { "hazardous", "impact_probability" }
-				}
-			};
+                    },
+                    required = new[] { "hazardous", "impact_probability" }
+                }
+            };
 
-			Results = await OpenAi.GetStructuredResultAsync<project_celestial_shield.Models.Results>("", userPrompt, functionSchema, model: "qwen3-0.6b-meteor");
-			if (Results != null)
-			{
-				StatusMessage = "Results received";
-				Logger?.LogInformation("Home: Received results: {@Results}", Results);
-			}
-			else
-			{
-				StatusMessage = "No results returned";
-				Logger?.LogWarning("Home: GetStructuredResultAsync returned null");
-			}
-		}
-		catch (Exception ex)
-		{
-			StatusMessage = $"Error: {ex.Message}";
-			Logger?.LogError(ex, "Home: Error getting results");
-			throw;
-		}
-		finally
-		{
-			Loading = false;
-			StateHasChanged();
-		}
-	}
+            Results = await OpenAi.GetStructuredResultAsync<project_celestial_shield.Models.Results>("", userPrompt, functionSchema, model: "qwen3-0.6b-meteor");
+            if (Results != null)
+            {
+                StatusMessage = "Results received";
+                Logger?.LogInformation("Home: Received results: {@Results}", Results);
+            }
+            else
+            {
+                StatusMessage = "No results returned";
+                Logger?.LogWarning("Home: GetStructuredResultAsync returned null");
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error: {ex.Message}";
+            Logger?.LogError(ex, "Home: Error getting results");
+            throw;
+        }
+        finally
+        {
+            Loading = false;
+            StateHasChanged();
+        }
+    }
 }
