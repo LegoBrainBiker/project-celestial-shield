@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using System.Text.RegularExpressions; // added
 
 namespace project_celestial_shield.Services
 {
@@ -111,8 +112,64 @@ namespace project_celestial_shield.Services
             }
             catch
             {
+                // If caller expects a string, try to unescape a quoted JSON string and fall back to raw
+                if (typeof(T) == typeof(string))
+                {
+                    try
+                    {
+                        var unquoted = JsonSerializer.Deserialize<string>(json);
+                        if (unquoted != null) return (T)(object)unquoted;
+                    }
+                    catch
+                    {
+                        // ignore
+                    }
+
+                    return (T)(object)json;
+                }
+
+                // Heuristic: if payload looks like a Python dict (single quotes, True/False/None),
+                // try a lightweight normalization and deserialize again.
+                if (json.IndexOf('\'') >= 0 || json.Contains("False") || json.Contains("True") || json.Contains("None"))
+                {
+                    try
+                    {
+                        var normalized = NormalizePythonStyleJson(json);
+                        return JsonSerializer.Deserialize<T>(normalized, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+                    }
+                    catch
+                    {
+                        // fall through to null
+                    }
+                }
+
                 return null;
             }
+        }
+
+        // Convert common non-JSON Python-style snippets into valid JSON.
+        // This is a heuristic converter:
+        // - converts True/False/None -> true/false/null
+        // - converts single-quoted tokens to double-quoted strings
+        // Limitations: not a full parser; may break if input contains embedded single quotes or complex escapes.
+        private static string NormalizePythonStyleJson(string s)
+        {
+            if (string.IsNullOrWhiteSpace(s)) return s;
+
+            // Replace Python booleans/null with JSON lower-case equivalents
+            s = Regex.Replace(s, @"\bTrue\b", "true");
+            s = Regex.Replace(s, @"\bFalse\b", "false");
+            s = Regex.Replace(s, @"\bNone\b", "null");
+
+            // Simple replacement: single-quoted strings -> double-quoted strings.
+            // This uses a conservative regex that replaces '...'
+            // NOTE: This will not handle nested escaped quotes perfectly.
+            s = Regex.Replace(s, @"'([^'\\]*(?:\\.[^'\\]*)*)'", @"""$1""");
+
+            return s;
         }
 
         private static string? ExtractJsonFromText(string text)
