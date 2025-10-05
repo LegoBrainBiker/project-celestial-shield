@@ -1,1 +1,60 @@
+# .gitignore for .NET / Blazor projects
+
+# Keep the user-specific launch settings out of source control
 Properties/launchSettings.json
+
+# Build results
+[Bb]in/
+[Oo]bj/
+artifacts/
+publish/
+
+# Visual Studio and editors
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+*.sln.iml
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# ASP.NET / Blazor generated assets
+# staticwebassets and scoped css files are generated during build/publish
+**/staticwebassets.*
+**/scopedcss/
+**/*.bundle.scp.css
+*.razor.g.cs
+*.razor.scp.css
+# Blazor WebAssembly publish output (generated at publish/publish-to-fs)
+wwwroot/_framework/
+wwwroot/_content/
+
+# Logs, test results and caches
+*.log
+TestResults/
+BundlerMinifierCache.json
+
+# OS generated files
+*.DS_Store
+Thumbs.db
+
+# Secret storage (local developer secrets)
+secrets.json
+secrets.*.json
+
+# JetBrains Rider
+_ReSharper*/
+
+# Misc
+*.pid
+*.seed
+*.dump
