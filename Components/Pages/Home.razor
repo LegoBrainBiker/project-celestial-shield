@@ -37,19 +37,19 @@
 
 @* This is the initial form, recreated from your image. It shows by default. *@
 
-
 <MudGrid Justify="Justify.Center" Class="mt-12 mb-8">
     <MudItem xs="12" sm="8" md="5">
         <MudPaper Class="pa-8" Elevation="3">
-		
-        	<MudText Typo="Typo.h5" GutterBottom="true">Simulation Parameters</MudText>
+			<MudForm>
+        		<MudText Typo="Typo.h5" GutterBottom="true">Simulation Parameters</MudText>
 
-	        <MudNumericField T="double?" Label="Absolute Magnitude" Placeholder="H" Variant="Variant.Outlined" Class="mt-4" />
-            <MudNumericField T="double?" Label="Asteroid Diameter" Placeholder="km" Variant="Variant.Outlined" Class="mt-4" />
-        	<MudNumericField T="double?" Label="Relative Velocity" Placeholder="km/s" Variant="Variant.Outlined" Class="mt-4" />
-        	<MudNumericField T="double?" Label="Mass" Placeholder="kg" Variant="Variant.Outlined" Class="mt-4" />
-        	<MudTextField T="string" InputType="InputType.Text" Label="Classification" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" />
+	        	<MudNumericField T="double?" Required="true" RequiredError="Enter Absolute Magnitude" Label="Absolute Magnitude" Placeholder="H" Variant="Variant.Outlined" Class="mt-4"/>
+            	<MudNumericField T="double?" Required="true" Label="Asteroid Diameter" Placeholder="km" Variant="Variant.Outlined" Class="mt-4" />
+        		<MudNumericField T="double?" Required="true" Label="Relative Velocity" Placeholder="km/s" Variant="Variant.Outlined" Class="mt-4" />
+        		<MudNumericField T="double?" Required="true" Label="Mass" Placeholder="kg" Variant="Variant.Outlined" Class="mt-4" />
+        		<MudTextField T="string" Required="true" Label="Classification" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" />
 
+			</MudForm>
             <MudButton Variant="Variant.Filled" 
                         Color="Color.Dark" 
                         FullWidth="true" 
