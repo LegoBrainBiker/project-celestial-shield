@@ -4,20 +4,24 @@
 <PageTitle>Celestial Shield</PageTitle>
 
 @using MudBlazor
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
 
 <MudText Typo="Typo.h1" Align="Align.Center"><b>Celestial Shield</b></MudText>
 @* This is the initial form, recreated from your image. It shows by default. *@
+
 <MudGrid Justify="Justify.Center" Class="mt-12 mb-8">
     <MudItem xs="12" sm="8" md="5">
         <MudPaper Class="pa-8" Elevation="3">
-            <MudText Typo="Typo.h5" GutterBottom="true">Simulation Parameters</MudText>
-            
-            <MudTextField T="string" Label="Asteroid radius" Placeholder="km" Variant="Variant.Outlined" Class="mt-4" />
-            <MudTextField T="string" Label="Impact speed" Placeholder="km/h" Variant="Variant.Outlined" Class="mt-4" />
-            <MudTextField T="string" Label="Impact area" Placeholder="km^2" Variant="Variant.Outlined" Class="mt-4" />
-            <MudTextField T="string" Label="Population" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" />
-            <MudTextField T="string" Label="Other values" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" />
-                
+		
+        	<MudText Typo="Typo.h5" GutterBottom="true">Simulation Parameters</MudText>
+
+	        <MudTextField T="double?" InputType="InputType.Number" Label="Absolute Magnitude" Placeholder="H" Variant="Variant.Outlined" Class="mt-4" />
+            <MudTextField T="double?" InputType="InputType.Number" Label="Asteroid Diameter" Placeholder="km" Variant="Variant.Outlined" Class="mt-4" />
+        	<MudTextField T="double?" InputType="InputType.Number" Label="Relative Velocity" Placeholder="km/s" Variant="Variant.Outlined" Class="mt-4" />
+        	<MudTextField T="double?" InputType="InputType.Number" Label="Mass" Placeholder="kg" Variant="Variant.Outlined" Class="mt-4" />
+        	<MudTextField T="string" InputType="InputType.Text" Label="Classification" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" />
+
             <MudButton Variant="Variant.Filled" 
                         Color="Color.Dark" 
                         FullWidth="true" 
