@@ -25,7 +25,7 @@ async function injectMap(key, lat, lng, rad) {
     mapElement.style.height = '1000px';
     content.append(mapElement);
     const map = new Map(mapElement, {
-        zoom: 4,
+        zoom: 10,
         center: position,
         mapId: "meteorimpactmap",
     });
@@ -48,10 +48,10 @@ async function injectMap(key, lat, lng, rad) {
 
 @code {
     private string test() {
-        injectMap(0, 0, 1000);
+        injectMap(0, 0, 100);
         return "";
     }
-
+    // radius is in meters
     private async Task injectMap(float lat, float lng, float rad)
     {
         string key = Environment.GetEnvironmentVariable("MAPS_API_KEY");
