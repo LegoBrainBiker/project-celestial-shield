@@ -2,6 +2,14 @@
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<MudContainer MaxWidth="MaxWidth.Large" Style="margin-top:24px;">
+	<MudPaper Elevation="4" Style="padding:24px;">
+		<MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
+		<MudText Typo="Typo.body1" Class="mb-4">Welcome to your new app.</MudText>
 
-Welcome to your new app.
+		<MudStack Direction="Row" Spacing="2">
+			<MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/counter">Go to counter</MudButton>
+			<MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/weather">Weather</MudButton>
+		</MudStack>
+	</MudPaper>
+</MudContainer>
