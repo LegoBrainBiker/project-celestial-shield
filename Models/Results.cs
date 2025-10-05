@@ -4,6 +4,6 @@ namespace project_celestial_shield.Models
     {
         public double? distance { get; set; }
         public bool? hazardous { get; set; }
-        public double? impact_probability { get; set; }
+        public double? probability { get; set; }
     }
 }

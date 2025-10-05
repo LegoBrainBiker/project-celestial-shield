@@ -29,9 +29,6 @@
     </MudPaper>
 </MudContainer>
 
-<MudText Typo="Typo.subtitle1" Align="Align.Center" Class="mt-4 mb-4">@StatusMessage</MudText>
-
-@* This @if block controls which view is shown. *@
 @if (Loading)
 {
     <div class="d-flex justify-center mt-4">
@@ -76,7 +73,7 @@ else if (Results != null)
                                 </CardHeaderContent>
                             </MudCardHeader>
                             <MudCardContent>
-                                <MudText Typo="Typo.body2">@(Results.impact_probability)</MudText>
+                                <MudText Typo="Typo.body2">@(Results.probability)</MudText>
                             </MudCardContent>
                         </MudCard>
                     </MudItem>
@@ -235,7 +232,6 @@ else if (Results != null)
         Logger?.LogInformation("Home: Starting GetResults");
         try
         {
-            // Build a JSON payload from the current bound values so the model receives real user input
             var inputObj = new
             {
                 magnitude = Magnitude ?? 0,
@@ -260,7 +256,7 @@ else if (Results != null)
                     {
                         distance = new { type = "number" },
                         hazardous = new { type = "boolean" },
-                        impact_probability = new { type = "number" },
+                        probability = new { type = "number" },
                     },
                     required = new[] { "hazardous", "impact_probability" }
                 }
