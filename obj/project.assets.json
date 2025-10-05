@@ -645,25 +645,24 @@
     ]
   },
   "packageFolders": {
-    "/Users/sanjaybrink/.nuget/packages/": {}
+    "/Users/kimberleyyin/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/sanjaybrink/Desktop/project-celestial-shield/project-celestial-shield/project-celestial-shield.csproj",
+      "projectUniqueName": "/Users/kimberleyyin/Desktop/project-celestial-shield/project-celestial-shield.csproj",
       "projectName": "project-celestial-shield",
-      "projectPath": "/Users/sanjaybrink/Desktop/project-celestial-shield/project-celestial-shield/project-celestial-shield.csproj",
-      "packagesPath": "/Users/sanjaybrink/.nuget/packages/",
-      "outputPath": "/Users/sanjaybrink/Desktop/project-celestial-shield/project-celestial-shield/obj/",
+      "projectPath": "/Users/kimberleyyin/Desktop/project-celestial-shield/project-celestial-shield.csproj",
+      "packagesPath": "/Users/kimberleyyin/.nuget/packages/",
+      "outputPath": "/Users/kimberleyyin/Desktop/project-celestial-shield/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/Users/sanjaybrink/.nuget/NuGet/NuGet.Config"
+        "/Users/kimberleyyin/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
       ],
       "sources": {
-        "/usr/local/share/dotnet/library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
