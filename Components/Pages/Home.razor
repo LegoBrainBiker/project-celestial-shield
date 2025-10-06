@@ -81,6 +81,47 @@ else if (Results != null)
             </MudTabPanel>
 
             <MudTabPanel Text="Impact">
+                <script>
+                    async function injectMap(key, lat, lng, rad) {
+                        "use strict";
+                        const content = document.getElementById('google-maps-container');
+                        if (key === null) {
+                            alert('missing enviroment varriable: MAPS_API_KEY');
+                            return;
+                        }
+                        const mapsScript =  document.createElement('script');
+                        mapsScript.src = 'https://maps.googleapis.com/maps/api/js?key='+key;
+                        content.append(mapsScript);
+                        await new Promise(resolve => {
+                            mapsScript.onload = resolve;
+                        })
+                        const position = { lat: lat, lng: lng };
+                        const { Map } = await window.google.maps.importLibrary("maps");
+                        const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+                        const mapElement = document.createElement("div");
+                        mapElement.style.height = '300px';
+                        content.append(mapElement);
+                        const map = new Map(mapElement, {
+                            zoom: 4,
+                            center: position,
+                            mapId: "meteorimpactmap",
+                        });
+
+                        // The marker, positioned at Uluru
+                        const marker = new AdvancedMarkerElement({
+                            map: map,
+                            position: position,
+                            title: "point of impact",
+                        });
+                        const poly = new google.maps.Circle({
+                            fillColor: "#000000",
+                            map: map,
+                            fillOpacity: 1,
+                            center: position,
+                            radius: rad
+                        });
+                    }
+                </script>
                 <MudGrid Justify="Justify.Center">
                     <MudItem xs="12" md="6">
                         <MudCard>
@@ -117,17 +158,12 @@ else if (Results != null)
                                 </CardHeaderActions>
                             </MudCardHeader>
                             <MudCardContent>
-                                <MudPaper Height="300px" Class="d-flex align-center justify-center mud-theme-dark">
-                                                                        <MudText Typo="Typo.h5">Google Maps API Placeholder</MudText>
+                                <MudPaper Height="300px" id="google-maps-container" Class="d-flex align-center justify-center mud-theme-dark">
                                 </MudPaper>
-                                <MudList T="string" Class="mt-4">
-                                    <MudListItem Icon="@Icons.Material.Filled.Public" Text="Color coded by risk" />
-                                    <MudListItem Icon="@Icons.Material.Filled.Adjust" Text="Crater size estimates" />
-                                    <MudListItem Icon="@Icons.Material.Filled.Vibration" Text="Earthquake equivalent (Richter scale)" />
-                                </MudList>
                             </MudCardContent>
                             <MudCardActions>
-                                <MudButton Variant="Variant.Text" Color="Color.Primary">Details</MudButton>
+                                <MudNumericField T="double?" Label="longitude" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Lattitude"> </MudNumericField>
+                                <MudNumericField T="double?" Label="lattitude" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Longitude"> </MudNumericField>
                                 <MudButton Variant="Variant.Filled" Color="Color.Primary">Run Simulation</MudButton>
                             </MudCardActions>
                         </MudCard>
@@ -246,7 +282,15 @@ else if (Results != null)
     private double? RelativeVelocity { get; set; }
     private double? Mass { get; set; }
     private string? Classification { get; set; }
+    private double? Lattitude { get; set; }
+    private double? Longitude { get; set; }
 
+    private async Task injectMap()
+    {
+        string key = Environment.GetEnvironmentVariable("MAPS_API_KEY");
+        await JSRuntime.InvokeVoidAsync("injectMap", key, Lattitude, Longitude, Diameter/2);
+        // I know this is the wrong diameter
+    }
     private async Task GetResults()
     {
         if (OpenAi == null) return;
