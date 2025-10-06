@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("project-celestial-shield")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+501955490f8490afca3ee5d3a47f8b45777e1efc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+72434ffb34c83af6c821d36f5b217c40c7cf8e37")]
 [assembly: System.Reflection.AssemblyProductAttribute("project-celestial-shield")]
 [assembly: System.Reflection.AssemblyTitleAttribute("project-celestial-shield")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

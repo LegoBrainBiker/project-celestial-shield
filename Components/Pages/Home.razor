@@ -16,7 +16,6 @@
     <MudNumericField @bind-value="Velocity" Label="v_inf (km/s)" Placeholder="Relative velocity..." Variant="Variant.Outlined" Class="mt-4" />
     <MudNumericField @bind-value="Magnitude" Label="h (H)" Placeholder="Absolute magnitude..." Variant="Variant.Outlined" Class="mt-4" />
     <MudNumericField @bind-value="Diameter" Label="diameter (km)" Placeholder="Estimate diameter..." Variant="Variant.Outlined" Class="mt-4" />
-    <MudNumericField @bind-value="VirtualImpactors" Label="n_imp (integer)" Placeholder="Number of distinct potential impact solutions..." Variant="Variant.Outlined" Class="mt-4" />
     <MudNumericField @bind-value="Mass" Label="mass (kg) (optional)" Placeholder="Estimate mass..." Variant="Variant.Outlined" Class="mt-4" />
     <MudTextField @bind-value="LastObservation" Label="last_obs (UTC YYYY-MM-DD)" Placeholder="Last observation..." Variant="Variant.Outlined" Class="mt-4" />
 
@@ -178,7 +177,7 @@ else if (Results != null)
                             <MudCardActions>
                                 <MudNumericField T="double?" Label="longitude" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Lattitude"> </MudNumericField>
                                 <MudNumericField T="double?" Label="lattitude" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Longitude"> </MudNumericField>
-                                <MudButton Variant="Variant.Filled" Color="Color.Primary">Run Simulation</MudButton>
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="injectMap">Run Simulation</MudButton>
                             </MudCardActions>
                         </MudCard>
                     </MudItem>
@@ -294,7 +293,6 @@ else if (Results != null)
     private double? Velocity { get; set; }
     private double? Magnitude { get; set; }
     private double? Diameter { get; set; }
-    private double? VirtualImpactors { get; set; }
     private double? Mass { get; set; }
     private string? LastObservation { get; set; }
     private double? Lattitude { get; set; }
@@ -318,7 +316,6 @@ else if (Results != null)
                 v_inf = Velocity ?? 0,
                 h = Magnitude ?? 0,
                 diameter = Diameter ?? 0,
-                n_imp = VirtualImpactors ?? 0,
                 last_obs = LastObservation ?? "",
             };
 
