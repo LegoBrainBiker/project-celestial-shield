@@ -302,7 +302,7 @@ else if (Results != null)
 
     private async Task injectMap()
     {
-        string key = Environment.GetEnvironmentVariable("MAPS_API_KEY");
+        string? key = Environment.GetEnvironmentVariable("MAPS_API_KEY");
         await JSRuntime.InvokeVoidAsync("injectMap", key, Lattitude, Longitude, CraterSize*500);
     }
     private async Task GetResults()
