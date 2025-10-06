@@ -13,7 +13,7 @@
 <MudContainer MaxWidth="MaxWidth.Large" Style="margin-top:12px;">
     <MudPaper Elevation="0" Class="pa-4">
     <MudNumericField T="double?" Label="Absolute Magnitude" Placeholder="H" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Magnitude" />
-    <MudNumericField T="double?" Label="Asteroid Diameter" Placeholder="km" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Diameter" />
+    <MudNumericField T="double?" Label="Asteroid Diameter" Placeholder="m" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Diameter" />
     <MudNumericField T="double?" Label="Relative Velocity" Placeholder="km/s" Variant="Variant.Outlined" Class="mt-4" @bind-Value="RelativeVelocity" />
     <MudNumericField T="double?" Label="Mass" Placeholder="kg" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Mass" />
     <MudTextField T="string" InputType="InputType.Text" Label="Classification" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Classification" />
@@ -82,6 +82,30 @@ else if (Results != null)
 
             <MudTabPanel Text="Impact">
                 <MudGrid Justify="Justify.Center">
+                    <MudItem xs="12" md="6">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Estimate Impact Energy (j)</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.h5">@(ImpactEnergy)</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Estimate Crater Size (km)</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">@(CraterSize)</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
                     <MudItem xs="12" sm="10" md="8" lg="6">
                         <MudCard Elevation="3">
                             <MudCardHeader>
@@ -217,7 +241,6 @@ else if (Results != null)
     private bool Loading;
     private string? StatusMessage;
 
-    // Bound form properties
     private double? Magnitude { get; set; }
     private double? Diameter { get; set; }
     private double? RelativeVelocity { get; set; }
@@ -286,4 +309,22 @@ else if (Results != null)
             StateHasChanged();
         }
     }
+
+    private double? CalculateMassFromDiameter(double diameter)
+    {
+        double density = 3000; // Average density in kg/m^3 for stony asteroids
+
+        double volume = (Math.PI / 6.0) * Math.Pow(diameter, 3); // Volume in m^3
+        double mass = volume * density; // Mass in kg
+
+        return mass;
+    }
+
+    private double? ImpactEnergy => (Mass ?? (Diameter.HasValue ? CalculateMassFromDiameter(Diameter.Value) : null)) is double mass && RelativeVelocity.HasValue
+            ? 0.5 * mass * Math.Pow(RelativeVelocity.Value * 1000, 2)
+            : null;
+    
+    private double? CraterSize => ImpactEnergy.HasValue
+        ? Math.Pow(ImpactEnergy.Value, 1.0 / 3.0)
+        : null;
 }
