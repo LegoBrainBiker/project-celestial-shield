@@ -13,11 +13,12 @@
 
 <MudContainer MaxWidth="MaxWidth.Large" Style="margin-top:12px;">
     <MudPaper Elevation="0" Class="pa-4">
-    <MudNumericField T="double?" Label="Absolute Magnitude" Placeholder="H" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Magnitude" />
-    <MudNumericField T="double?" Label="Asteroid Diameter" Placeholder="m" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Diameter" />
-    <MudNumericField T="double?" Label="Relative Velocity" Placeholder="km/s" Variant="Variant.Outlined" Class="mt-4" @bind-Value="RelativeVelocity" />
-    <MudNumericField T="double?" Label="Mass" Placeholder="kg" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Mass" />
-    <MudTextField T="string" InputType="InputType.Text" Label="Classification" Placeholder="Value" Variant="Variant.Outlined" Class="mt-4" @bind-Value="Classification" />
+    <MudNumericField @bind-value="Velocity" Label="v_inf (km/s)" Placeholder="Relative velocity..." Variant="Variant.Outlined" Class="mt-4" />
+    <MudNumericField @bind-value="Magnitude" Label="h (H)" Placeholder="Absolute magnitude..." Variant="Variant.Outlined" Class="mt-4" />
+    <MudNumericField @bind-value="Diameter" Label="diameter (km)" Placeholder="Estimate diameter..." Variant="Variant.Outlined" Class="mt-4" />
+    <MudNumericField @bind-value="VirtualImpactors" Label="n_imp (integer)" Placeholder="Number of distinct potential impact solutions..." Variant="Variant.Outlined" Class="mt-4" />
+    <MudNumericField @bind-value="Mass" Label="mass (kg) (optional)" Placeholder="Estimate mass..." Variant="Variant.Outlined" Class="mt-4" />
+    <MudTextField @bind-value="LastObservation" Label="last_obs (UTC YYYY-MM-DD)" Placeholder="Last observation..." Variant="Variant.Outlined" Class="mt-4" />
 
         <MudButton Variant="Variant.Filled" 
                     Color="Color.Dark" 
@@ -46,23 +47,11 @@ else if (Results != null)
                         <MudCard>
                             <MudCardHeader>
                                 <CardHeaderContent>
-                                    <MudText Typo="Typo.h6">Approximate Miss Distance</MudText>
+                                    <MudText Typo="Typo.h6">Estimate Earth Approach Range</MudText>
                                 </CardHeaderContent>
                             </MudCardHeader>
                             <MudCardContent>
-                                <MudText Typo="Typo.body2">@(Results.distance)</MudText>
-                            </MudCardContent>
-                        </MudCard>
-                    </MudItem>
-                    <MudItem xs="12" md="6">
-                        <MudCard>
-                            <MudCardHeader>
-                                <CardHeaderContent>
-                                    <MudText Typo="Typo.h6">Hazardous</MudText>
-                                </CardHeaderContent>
-                            </MudCardHeader>
-                            <MudCardContent>
-                                <MudText Typo="Typo.h5">@(Results.hazardous)</MudText>
+                                <MudText Typo="Typo.body2">@(Results.range)</MudText>
                             </MudCardContent>
                         </MudCard>
                     </MudItem>
@@ -74,7 +63,31 @@ else if (Results != null)
                                 </CardHeaderContent>
                             </MudCardHeader>
                             <MudCardContent>
-                                <MudText Typo="Typo.body2">@(Results.probability)</MudText>
+                                <MudText Typo="Typo.h5">@(Results.ip)</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Hazard Class</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">@(Results.hazard_class)</MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudCard>
+                            <MudCardHeader>
+                                <CardHeaderContent>
+                                    <MudText Typo="Typo.h6">Rationale</MudText>
+                                </CardHeaderContent>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudText Typo="Typo.body2">@(Results.rationale)</MudText>
                             </MudCardContent>
                         </MudCard>
                     </MudItem>
@@ -278,11 +291,12 @@ else if (Results != null)
     private bool Loading;
     private string? StatusMessage;
 
+    private double? Velocity { get; set; }
     private double? Magnitude { get; set; }
     private double? Diameter { get; set; }
-    private double? RelativeVelocity { get; set; }
+    private double? VirtualImpactors { get; set; }
     private double? Mass { get; set; }
-    private string? Classification { get; set; }
+    private string? LastObservation { get; set; }
     private double? Lattitude { get; set; }
     private double? Longitude { get; set; }
 
@@ -301,16 +315,26 @@ else if (Results != null)
         {
             var inputObj = new
             {
-                magnitude = Magnitude ?? 0,
+                v_inf = Velocity ?? 0,
+                h = Magnitude ?? 0,
                 diameter = Diameter ?? 0,
-                relative_velocity = RelativeVelocity ?? 0,
-                mass = Mass ?? 0,
-                classification = Classification ?? string.Empty
+                n_imp = VirtualImpactors ?? 0,
+                last_obs = LastObservation ?? "",
             };
 
             var inputJson = JsonSerializer.Serialize(inputObj);
 
-            var userPrompt = $"Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n### Instruction:\nPredict whether this meteor will hit Earth\n\n### Input:\n{inputJson}\n\n### Response:\n";
+            var userPrompt = $@"
+Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+### Instruction:
+Determine the impact probability, hazard class, and impact range (years)
+
+### Input:
+{inputJson}
+
+### Response:
+";
 
             var functionSchema = new
             {
@@ -321,15 +345,16 @@ else if (Results != null)
                     type = "object",
                     properties = new
                     {
-                        distance = new { type = "number" },
-                        hazardous = new { type = "boolean" },
-                        probability = new { type = "number" },
+                        range = new { type = "text" },
+                        ip = new { type = "number" },
+                        hazard_class = new { type = "text" },
+                        rationale = new { type = "text" },
                     },
-                    required = new[] { "hazardous", "impact_probability" }
+                    required = new[] { "range", "ip", "hazard_class", "rationale" }
                 }
             };
 
-            Results = await OpenAi.GetStructuredResultAsync<project_celestial_shield.Models.Results>("", userPrompt, functionSchema, model: "qwen3-0.6b-meteor");
+            Results = await OpenAi.GetStructuredResultAsync<project_celestial_shield.Models.Results>("", userPrompt, functionSchema, model: "qwen3-0.6b-meteor-2.0");
             if (Results != null)
             {
                 StatusMessage = "Results received";
@@ -364,8 +389,8 @@ else if (Results != null)
         return mass;
     }
 
-    private double? ImpactEnergy => (Mass ?? (Diameter.HasValue ? CalculateMassFromDiameter(Diameter.Value) : null)) is double mass && RelativeVelocity.HasValue
-            ? 0.5 * mass * Math.Pow(RelativeVelocity.Value * 1000, 2)
+    private double? ImpactEnergy => (Mass ?? (Diameter.HasValue ? CalculateMassFromDiameter(Diameter.Value) : null)) is double mass && Velocity.HasValue
+            ? 0.5 * mass * Math.Pow(Velocity.Value * 1000, 2)
             : null;
     
     private double? CraterSize => ImpactEnergy.HasValue

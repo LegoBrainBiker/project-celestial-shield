@@ -2,8 +2,9 @@ namespace project_celestial_shield.Models
 {
     public class Results
     {
-        public double? distance { get; set; }
-        public bool? hazardous { get; set; }
-        public double? probability { get; set; }
+        public string? range { get; set; }
+        public double? ip { get; set; }
+        public string? hazard_class { get; set; }
+        public string? rationale { get; set; }
     }
 }

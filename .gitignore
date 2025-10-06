@@ -1,5 +1,3 @@
-# .gitignore for .NET / Blazor projects
-
 # Keep the user-specific launch settings out of source control
 Properties/launchSettings.json
 
